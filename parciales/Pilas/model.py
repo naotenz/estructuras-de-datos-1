@@ -1,29 +1,41 @@
 import operator as op
 
+class Node:
+    def __init__(self, val, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
 class Model:
     OPERATORS = {'+': op.add, '-': op.sub, '*': op.mul, '/': op.truediv}
 
     def __init__(self):
+        self.root = None
         self.pila_numeros = []
         self.pila_operadores = []
 
+    # -------------------
+    # Función principal
+    # -------------------
     def to_prefix(self, expr):
-        # Convertir la expresión a tokens
         tokens = self._tokenize(expr)
-        # Convertir a árbol usando precedencia
-        tree = self._parse_expr(tokens)
-        # Generar notación prefija
-        prefix = self._to_prefix(tree)
-        return prefix
+        self.root = self._parse_expr(tokens)
+        self.pila_numeros = []
+        self.pila_operadores = []
+        return self._to_prefix_with_pilas(self.root)
 
     def evaluate(self, expr):
-        tokens = self._tokenize(expr)
-        tree = self._parse_expr(tokens)
-        return str(self._eval_tree(tree))
+        if not self.root:
+            tokens = self._tokenize(expr)
+            self.root = self._parse_expr(tokens)
+        return str(self._eval_tree(self.root))
 
-    # -----------------
+    def get_pilas(self):
+        return list(self.pila_numeros), list(self.pila_operadores)
+
+    # -------------------
     # Funciones internas
-    # -----------------
+    # -------------------
     def _tokenize(self, expr):
         tokens = []
         num = ''
@@ -41,17 +53,10 @@ class Model:
         return tokens
 
     def _parse_expr(self, tokens):
-        # Usaremos algoritmo simple de Shunting-Yard para generar árbol
+        # Algoritmo simple para árbol usando precedencia
         output = []
         stack = []
-
         precedence = {'+': 1, '-': 1, '*': 2, '/': 2}
-
-        class Node:
-            def __init__(self, val, left=None, right=None):
-                self.val = val
-                self.left = left
-                self.right = right
 
         def pop_stack():
             op_node = stack.pop()
@@ -63,17 +68,19 @@ class Model:
             if t.isdigit():
                 output.append(Node(t))
             elif t in '+-*/':
-                while stack and precedence.get(stack[-1], 0) >= precedence[t]:
+                while stack and precedence.get(stack[-1],0) >= precedence[t]:
                     pop_stack()
                 stack.append(t)
         while stack:
             pop_stack()
         return output[0]
 
-    def _to_prefix(self, node):
+    def _to_prefix_with_pilas(self, node):
         if not node.left and not node.right:
+            self.pila_numeros.append(node.val)
             return node.val
-        return node.val + self._to_prefix(node.left) + self._to_prefix(node.right)
+        self.pila_operadores.append(node.val)
+        return node.val + self._to_prefix_with_pilas(node.left) + self._to_prefix_with_pilas(node.right)
 
     def _eval_tree(self, node):
         if not node.left and not node.right:

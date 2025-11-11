@@ -12,8 +12,10 @@ class Controller:
     def on_calcular(self, expr):
         prefijo = self.model.to_prefix(expr)
         resultado = self.model.evaluate(expr)
+        numeros, operadores = self.model.get_pilas()
         self.view.set_prefijo(prefijo)
         self.view.set_resultado(resultado)
+        self.view.set_pilas(numeros, operadores)
 
     def on_cerrar(self):
         self.root.destroy()
