@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 📚 Estructura de Datos 1
 
 Este repositorio forma parte de mi aprendizaje en **GitHub** y en el mundo de la programación.  
@@ -24,3 +25,6 @@ La suma es: 12
 
 
 ```
+=======
+# estructura-de-datos-2
+>>>>>>> 1cbeee8 (first commit)
